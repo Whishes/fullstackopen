@@ -2,7 +2,7 @@ import React, { useState, useEffect } from 'react'
 import Filter from './components/Filter'
 import PersonForm from './components/PersonForm'
 import Person from './components/Person'
-import axios from 'axios'
+import personsService from './services/persons'
 
 const App = () => {
   const [ persons, setPersons ] = useState([]) 
@@ -12,15 +12,15 @@ const App = () => {
   const [ newNumber, setNewNumber ] = useState('')
 
   useEffect(() => {
-        console.log('effect')
-        axios
-          .get("http://localhost:3001/persons")
-            .then(response => {
-                console.log('promise fulfilled')
-                setPersons(response.data)
+        //console.log('effect')
+        personsService
+          .getAll()
+            .then(initialPersons => {
+                //console.log('promise fulfilled')
+                setPersons(initialPersons)
         })
     }, [])
-    console.log('render', persons.length, 'persons')
+    //console.log('render', persons.length, 'persons')
 
   const handlePersonFilter = (event) => {
     setSearchPersons(event.target.value)
@@ -33,19 +33,50 @@ const App = () => {
     event.preventDefault()
     const personObject = {
       name: newName,
-      id: newName,
       number: newNumber
     }
     
-    const existingPerson = persons.find((person) => person.name === newName )
+    const existingPerson = persons.find(person => person.name === newName)
+    //console.log(existingPerson)
+
       if (existingPerson) {
-        window.alert(`${newName} has already been added to the phonebook`)
+        if (window.confirm(`${newName} is in the phonebook already, would you like to replace the phone number?`)) {
+          personsService
+            .updatePerson(existingPerson.id, personObject)
+            .then(returnedPerson => {
+              setPersons(persons.map(person => person.id === returnedPerson.id
+                ? returnedPerson
+                : person))
+            })
+            .catch(error => {
+              alert(`Person was already deleted from the server`)
+            })
+        }
+
       } else {
-        setPersons(persons.concat(personObject))
-        setNewName("")
-        setNewNumber("")
+        // Post data to JSON server
+        personsService
+          .createPerson(personObject)
+          .then(returnedPerson => {
+            setPersons(persons.concat(returnedPerson))
+            setNewName("")
+            setNewNumber("")
+          })
       }
-  } 
+  }
+  
+  const deletePersons = (id, name) => {
+    if (window.confirm(`Confirm delete ${name}`)) {
+      personsService
+      .deletePersont(id)
+        .then((response) => {
+          setPersons(persons.filter((person) => person.id !== id))
+        })
+        .catch(error => {
+        alert(`${name} has already been deleted`)
+        })
+    }
+  }
 
   const formProps = {
     addContent, newName, setNewName, newNumber, setNewNumber
@@ -60,7 +91,7 @@ const App = () => {
       <PersonForm formProps={formProps} />
       
       <h2>Numbers</h2>
-        {searchPersons === '' ? <Person personFilter={persons} /> : <Person personFilter={personFilter} />}
+      {searchPersons === '' ? <Person personFilter={persons} deletePersons={deletePersons}/> : <Person personFilter={personFilter} deletePersons={deletePersons} />}
     </div>
   )
 }

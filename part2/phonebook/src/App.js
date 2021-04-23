@@ -2,14 +2,17 @@ import React, { useState, useEffect } from 'react'
 import Filter from './components/Filter'
 import PersonForm from './components/PersonForm'
 import Person from './components/Person'
+import Notification from './components/Notification'
 import personsService from './services/persons'
+
 
 const App = () => {
   const [ persons, setPersons ] = useState([]) 
   const [ searchPersons, setSearchPersons ] = useState('')
   const [ personFilter, setPersonFilter ] = useState(persons)
   const [ newName, setNewName ] = useState('')
-  const [ newNumber, setNewNumber ] = useState('')
+  const [newNumber, setNewNumber] = useState('')
+  const [message, setMessage] = useState(null)
 
   useEffect(() => {
         //console.log('effect')
@@ -47,12 +50,22 @@ const App = () => {
               setPersons(persons.map(person => person.id === returnedPerson.id
                 ? returnedPerson
                 : person))
+              setMessage(
+                {message: `Replaced ${returnedPerson.name}'s number with ${returnedPerson.number}`, state: "successful"}
+              )
+              setTimeout(() => {
+                setMessage(null)
+              }, 5000)
             })
             .catch(error => {
-              alert(`Person was already deleted from the server`)
+              setMessage(
+                {message: `${newName} has already been deleted`, state: "unsuccessful"}
+              )
+              setTimeout(() => {
+                setMessage(null)
+              }, 5000)
             })
         }
-
       } else {
         // Post data to JSON server
         personsService
@@ -61,6 +74,12 @@ const App = () => {
             setPersons(persons.concat(returnedPerson))
             setNewName("")
             setNewNumber("")
+            setMessage(
+              {message: `Added ${returnedPerson.name}`, state: "successful"}
+            )
+            setTimeout(() => {
+              setMessage(null)
+            }, 5000)
           })
       }
   }
@@ -68,12 +87,17 @@ const App = () => {
   const deletePersons = (id, name) => {
     if (window.confirm(`Confirm delete ${name}`)) {
       personsService
-      .deletePersont(id)
+      .deletePerson(id)
         .then((response) => {
           setPersons(persons.filter((person) => person.id !== id))
         })
         .catch(error => {
-        alert(`${name} has already been deleted`)
+          setMessage(
+            {message: `${name} has already been deleted`, state: "unsuccessful"}
+          )
+          setTimeout(() => {
+            setMessage(null)
+          }, 5000)
         })
     }
   }
@@ -85,6 +109,8 @@ const App = () => {
   return (
     <div>
       <h2>Phonebook</h2>
+      <Notification message={message} />
+
       <Filter value={searchPersons} onChange={handlePersonFilter} />
       
       <h3>Add a new...</h3>

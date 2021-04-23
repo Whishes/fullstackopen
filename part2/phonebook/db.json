@@ -21,24 +21,9 @@
       "id": 4
     },
     {
-      "name": "Test Person",
-      "number": "0123456789",
+      "name": "Test Success",
+      "number": "123",
       "id": 5
-    },
-    {
-      "name": "test1",
-      "number": "123",
-      "id": 6
-    },
-    {
-      "name": "test",
-      "number": "1234",
-      "id": 7
-    },
-    {
-      "name": "test3",
-      "number": "123",
-      "id": 8
     }
   ]
 }

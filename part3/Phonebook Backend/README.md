@@ -1,1 +1,1 @@
-https://mysterious-badlands-76972.herokuapp.com/api/persons
+https://mysterious-badlands-76972.herokuapp.com/

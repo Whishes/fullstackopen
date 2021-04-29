@@ -81,6 +81,12 @@ const App = () => {
               setMessage(null)
             }, 5000)
           })
+          .catch(error => {
+            //console.log(error.response.data.error)
+            setMessage(
+              { message: `${error.response.data.error}`, state: "unsuccessful"}
+            )
+          })
       }
   }
   

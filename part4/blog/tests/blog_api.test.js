@@ -15,7 +15,7 @@ beforeEach(async () => {
   await Promise.all(promiseArray);
 });
 
-describe("basic blog tests", () => {
+describe("Basic blog tests", () => {
   test("blogs are returned as json", async () => {
     const response = await api
       .get("/api/blogs")
@@ -90,7 +90,7 @@ describe("Adding/Changing blogs", () => {
     expect(response.body.likes).toBe(0);
   });
 
-  test("Backend responds with 400 Bad Request if title and url are missing", async () => {
+  test("backend responds with 400 Bad Request if title and url are missing", async () => {
     const newBlog = {
       author: "Robert C. Martin",
       likes: 0,
@@ -107,7 +107,7 @@ describe("Adding/Changing blogs", () => {
   });
 });
 
-describe("deleting a blog", () => {
+describe("Deleting a blog", () => {
   let token = null;
   beforeEach(async () => {
     await Blog.deleteMany({});
@@ -156,16 +156,15 @@ describe("deleting a blog", () => {
     expect(blogsAtEnd).toHaveLength(0);
     expect(blogsAtEnd).toEqual([]);
   });
+});
 
+describe("Updating Blog Posts", () => {
   test("can update info of an individual blog post", async () => {
     const blogsAtStart = await helper.blogsInDb();
     const blogToUpdate = blogsAtStart[0];
     //console.log(blogToUpdate);
 
     const updateBlog = {
-      title: "React patterns",
-      author: "Michael Chan",
-      url: "https://reactpatterns.com/",
       likes: 8,
     };
 
@@ -179,7 +178,7 @@ describe("deleting a blog", () => {
     expect(blogsAtEnd).toHaveLength(helper.initialBlogs.length);
 
     updatedBlog = blogsAtEnd[0];
-    expect(updatedBlog.likes).toContain(8);
+    expect(updatedBlog.likes).toBe(8);
   });
 
   test("adding a blog without a token fails with correct status code", async () => {

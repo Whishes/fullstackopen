@@ -40,14 +40,17 @@ const getTokenFrom = (request) => {
   const authorization = request.get("authorization");
   if (authorization && authorization.toLowerCase().startsWith("bearer ")) {
     return authorization.substring(7);
+  } else {
+    request.token = null;
   }
-  return null;
 };
 
 const tokenExtractor = (request, response, next) => {
   request.token = getTokenFrom(request);
 
   next();
+
+  return request.token;
 };
 
 const userExtractor = async (request, response, next) => {

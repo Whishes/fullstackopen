@@ -2,18 +2,20 @@ const bcrypt = require("bcrypt");
 const usersRouter = require("express").Router();
 const User = require("../models/user");
 
-usersRouter.post("/", async (request, response, next) => {
+usersRouter.post("/", async (request, response) => {
   const body = request.body;
 
-  //console.log(body.password.length);
-  if (body.password === undefined || body.username === undefined) {
-    response.status(400).send({ error: "Username and/or password is missing" });
+  // got rid of username check as the model should be sufficient whereas password needs extra security
+  if (!body.password || body.password === "") {
+    return response.status(400).json({ error: "Password is required" });
   }
+
   if (body.password.length < 3) {
-    response.status(400).send({ error: "Password is too short" });
+    return response.status(400).json({ error: "Password is too short" });
   }
+
   if (body.username.length < 3) {
-    response.status(400).send({ error: "Username is too short" });
+    return response.status(400).json({ error: "Username is too short" });
   }
 
   const saltRounds = 10;
@@ -25,8 +27,6 @@ usersRouter.post("/", async (request, response, next) => {
     passwordHash,
   });
 
-  //console.log(user);
-
   const savedUser = await user.save();
 
   response.json(savedUser);
@@ -34,10 +34,13 @@ usersRouter.post("/", async (request, response, next) => {
 
 usersRouter.get("/", async (request, response) => {
   const users = await User.find({}).populate("blogs", {
-    user: 1,
+    // url instead of user
+    url: 1,
     title: 1,
-    likes: 1,
+    // author instead of likes
+    author: 1,
   });
+
   response.json(users.map((u) => u.toJSON()));
 });
 

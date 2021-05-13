@@ -23,9 +23,9 @@ const App = () => {
   useEffect(() => {
     const loggedUserJSON = window.localStorage.getItem("loggedBlogappUser");
     if (loggedUserJSON) {
-      const user = JSON.parse(loggedUserJSON);
-      setUser(user);
-      blogService.setToken(user.token);
+      const parsedUser = JSON.parse(loggedUserJSON);
+      setUser(parsedUser);
+      blogService.setToken(parsedUser.token);
     }
   }, []);
 
@@ -54,7 +54,7 @@ const App = () => {
         message: exception.response.data.error,
         state: "unsuccessful",
       });
-      //console.log(message)
+      // console.log(message)
       setTimeout(() => {
         setMessage(null);
       }, 5000);
@@ -121,7 +121,7 @@ const App = () => {
   };
 
   const removeBlog = async (blog) => {
-    console.log(blog);
+    // console.log(blog);
     try {
       await blogService.deleteBlog(blog.id);
       setMessage({
@@ -173,7 +173,7 @@ const App = () => {
 
       <h2>Create New Blog</h2>
       <Togglable buttonLabel="new blog" ref={blogFormRef}>
-        <BlogForm createBlog={addBlog}></BlogForm>
+        <BlogForm createBlog={addBlog} />
       </Togglable>
 
       <h2>Blog List</h2>

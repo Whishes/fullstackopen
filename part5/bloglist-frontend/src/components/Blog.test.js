@@ -13,8 +13,8 @@ describe("Blog Tests", () => {
     likes: 0,
     author: "Test",
     user: {
-      id: "4567987987",
-    },
+      id: "4567987987"
+    }
   };
 
   beforeEach(() => {

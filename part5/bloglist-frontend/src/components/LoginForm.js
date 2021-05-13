@@ -1,6 +1,6 @@
-import React from "react";
-import Notification from "./Notification";
-import PropTypes from "prop-types";
+import React from "react"
+import Notification from "./Notification"
+import PropTypes from "prop-types"
 
 const LoginForm = ({
   message,
@@ -18,6 +18,7 @@ const LoginForm = ({
         <div>
           username
           <input
+            id="username"
             type="text"
             value={username}
             name="Username"
@@ -27,17 +28,20 @@ const LoginForm = ({
         <div>
           password
           <input
+            id="password"
             type="password"
             value={password}
             name="Password"
             onChange={({ target }) => setPassword(target.value)}
           />
         </div>
-        <button type="submit">login</button>
+        <button id="loginButton" type="submit">
+          login
+        </button>
       </form>
     </div>
-  );
-};
+  )
+}
 
 LoginForm.propTypes = {
   handleLogin: PropTypes.func.isRequired,
@@ -45,6 +49,6 @@ LoginForm.propTypes = {
   setPassword: PropTypes.func.isRequired,
   username: PropTypes.string.isRequired,
   password: PropTypes.string.isRequired,
-};
+}
 
-export default LoginForm;
+export default LoginForm

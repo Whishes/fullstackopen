@@ -1,5 +1,0 @@
-/* eslint-env node */
-{
-  "extends": ["airbnb", "plugin:prettier/recommended", "prettier/react"],
-  "plugins": ["react", "jest"]
-}

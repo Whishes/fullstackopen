@@ -5,7 +5,7 @@ import { endNotification, newNotification } from '../reducers/notificationReduce
 
 const AnecdoteList = () => {
   const anecdotes = useSelector(state => state.anecdotes)
-  const filter = useSelector(state => state.filter.toLowerCase())
+  const filter = useSelector(state => state.filter)
 
   const dispatch = useDispatch()
 

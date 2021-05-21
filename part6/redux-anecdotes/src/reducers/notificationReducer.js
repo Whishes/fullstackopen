@@ -1,6 +1,7 @@
 const notificationReducer = (state = "", action) => {
     switch (action.type) {
         case "NEW_NOTIFICATION":
+            clearTimeout(state.time)
             return action.message
         case "END_NOTIFICATION":
             return ""
@@ -10,7 +11,6 @@ const notificationReducer = (state = "", action) => {
 }
 
 export const newNotification = (message, time) => {
-    console.log(time)
     const returnedTime = time * 1000
 
     return async dispatch => {

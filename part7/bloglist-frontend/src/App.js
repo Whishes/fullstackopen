@@ -1,26 +1,35 @@
-import React, { useState, useEffect, useRef } from "react"
+import React, { useEffect, useRef } from "react"
 import Blog from "./components/Blog"
 import Notification from "./components/Notification"
 import BlogForm from "./components/BlogForm"
 import Togglable from "./components/Togglable"
 import blogService from "./services/blogs"
-import loginService from "./services/login"
 import LoginForm from "./components/LoginForm"
+import Users from "./components/Users"
+import User from "./components/User"
 
 import { useDispatch, useSelector } from "react-redux"
 import { errorMessage, successMessage } from "./reducers/notificationReducer"
 import { initializeBlogs, createBlog, deleteBlog } from "./reducers/blogReducer"
 import { logUser } from "./reducers/userReducer"
 
+import {
+  Switch,
+  Route,
+  Link,
+  useRouteMatch,
+  useHistory,
+} from "react-router-dom"
+import NavBar from "./components/NavBar"
+
 const App = () => {
-  const [username, setUsername] = useState("")
-  const [password, setPassword] = useState("")
-  const [user, setUser] = useState(null)
   const blogFormRef = useRef()
 
   const dispatch = useDispatch()
+  const history = useHistory()
   const blogs = useSelector((state) => state.blogs)
   const message = useSelector((state) => state.message)
+  const loggedInUser = useSelector((state) => state.user)
 
   // init all blogs
   useEffect(() => {
@@ -36,35 +45,6 @@ const App = () => {
       blogService.setToken(parsedUser.token)
     }
   }, [])
-
-  const handleLogin = async (event) => {
-    event.preventDefault()
-    try {
-      const user = await loginService.login({
-        username,
-        password,
-      })
-
-      window.localStorage.setItem("loggedBlogappUser", JSON.stringify(user))
-      blogService.setToken(user.token)
-      setUser(user)
-      setUsername("")
-      setPassword("")
-      dispatch(successMessage(`${user.name} logged in successfully`))
-    } catch (exception) {
-      dispatch(errorMessage(exception.response.data.error))
-    }
-  }
-
-  const handleLogOut = async (event) => {
-    event.preventDefault()
-    try {
-      window.localStorage.removeItem("loggedBlogappUser")
-      setUser(null)
-    } catch (error) {
-      dispatch(errorMessage("User already logged out"))
-    }
-  }
 
   const addBlogForm = async (blogObject) => {
     try {
@@ -84,49 +64,64 @@ const App = () => {
     // console.log(blog);
     try {
       dispatch(deleteBlog(blog.id))
-
       dispatch(successMessage(`${blog.title} has been deleted`))
+      history.push("/")
     } catch (error) {
       dispatch(errorMessage(`${blog.title} cannot be deleted`))
     }
   }
 
-  if (user === null) {
-    return (
-      <div>
-        <LoginForm
-          message={message}
-          handleLogin={handleLogin}
-          username={username}
-          setUsername={setUsername}
-          password={password}
-          setPassword={setPassword}
-        />
-      </div>
-    )
-  }
+  const match = useRouteMatch("/users/:id")
+  const usersBlog = match
+    ? blogs.filter((blog) => blog.user.id === match.params.id)
+    : null
+  //console.log(usersBlog)
+
+  const matchBlog = useRouteMatch("/blogs/:id")
+  const selectedBlog = matchBlog
+    ? blogs.find((blog) => blog.id === matchBlog.params.id)
+    : null
 
   return (
-    <div>
-      <h2>Blogs</h2>
+    <>
+      <NavBar />
+
       <Notification message={message} />
-      <p>{user.name} logged in</p>
+      <Switch>
+        <Route path="/users/:id">
+          <User userBlogs={usersBlog} />
+        </Route>
+        <Route path="/blogs/:id">
+          <Blog blog={selectedBlog} removeBlog={removeBlog} />
+        </Route>
+        <Route path="/users">
+          <Users />
+        </Route>
+        <Route path="/">
+          {loggedInUser === null ? (
+            <div>
+              <LoginForm />
+            </div>
+          ) : (
+            <div>
+              <h2>Create New Blog</h2>
+              <Togglable buttonLabel="new blog" ref={blogFormRef}>
+                <BlogForm addBlogForm={addBlogForm} />
+              </Togglable>
 
-      <button type="submit" onClick={handleLogOut}>
-        Log Out
-      </button>
-
-      <h2>Create New Blog</h2>
-      <Togglable buttonLabel="new blog" ref={blogFormRef}>
-        <BlogForm addBlogForm={addBlogForm} />
-      </Togglable>
-
-      <h2>Blog List</h2>
-      {blogs.sort((a, b) => b.likes - a.likes) &&
-        blogs.map((blog) => (
-          <Blog key={blog.id} blog={blog} removeBlog={removeBlog} />
-        ))}
-    </div>
+              <h2>Blog List</h2>
+              {blogs.sort((a, b) => b.likes - a.likes) &&
+                blogs.map((blog) => (
+                  //<Blog key={blog.id} blog={blog} removeBlog={removeBlog} />
+                  <div key={blog.id}>
+                    <Link to={`/blogs/${blog.id}`}>{blog.title}</Link>
+                  </div>
+                ))}
+            </div>
+          )}
+        </Route>
+      </Switch>
+    </>
   )
 }
 

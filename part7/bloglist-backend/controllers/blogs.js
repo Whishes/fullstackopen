@@ -42,14 +42,11 @@ blogsRouter.post("/", async (request, response) => {
 blogsRouter.post("/:id/comments", async (request, response) => {
   const body = request.body;
   if (body.comment) {
-    const commentBlog = await Blog.findByIdAndUpdate(
-      request.params.id,
-      {
-        comments: body.comment,
-      },
-      { new: true }
-    );
-    response.json(commentBlog);
+    const commentBlog = await Blog.findById(request.params.id);
+    commentBlog.comments = commentBlog.comments.concat(body.comment);
+    commentBlog.save();
+
+    response.status(200).json(commentBlog);
   } else {
     return response.status(400).json({ error: "Comment missing" });
   }

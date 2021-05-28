@@ -1,10 +1,10 @@
 import React from "react"
 import { useDispatch } from "react-redux"
-import { addLike } from "../reducers/blogReducer"
+import { addLike, deleteBlog, addComment } from "../reducers/blogReducer"
 import { errorMessage, successMessage } from "../reducers/notificationReducer"
 import { useHistory } from "react-router-dom"
 
-const Blog = ({ blog, removeBlog }) => {
+const Blog = ({ blog }) => {
   const dispatch = useDispatch()
   const history = useHistory()
 
@@ -20,7 +20,7 @@ const Blog = ({ blog, removeBlog }) => {
   const handleRemove = () => {
     if (window.confirm(`Remove ${blog.title}?`)) {
       try {
-        dispatch(removeBlog(blog))
+        dispatch(deleteBlog(blog.id))
         dispatch(successMessage("Blog has been deleted"))
         history.push("/")
       } catch (error) {
@@ -37,6 +37,20 @@ const Blog = ({ blog, removeBlog }) => {
     borderWidth: 1,
     marginBottom: 5,
     marginTop: 5,
+  }
+
+  const addCommentForm = (event) => {
+    //console.log(event)
+    const comment = event.target.comment.value
+    event.preventDefault()
+    try {
+      dispatch(addComment(comment, blog.id))
+      history.push(`/blogs/${blog.id}`)
+      dispatch(successMessage(`${comment} added!`))
+      console.log(`Comment: ${comment}`)
+    } catch (error) {
+      dispatch(errorMessage("Comment could not be added"))
+    }
   }
 
   if (!blog) {
@@ -62,6 +76,18 @@ const Blog = ({ blog, removeBlog }) => {
       <button id="deleteButton" onClick={handleRemove}>
         Delete
       </button>
+
+      <h3>Comments</h3>
+      <form onSubmit={(event) => addCommentForm(event)}>
+        <input type="comment" name="comment"></input>
+        <button type="submit">Add Comment</button>
+      </form>
+
+      <ul>
+        {blog.comments.map((comment) => (
+          <li key={comment}>{comment}</li>
+        ))}
+      </ul>
     </div>
   )
 }

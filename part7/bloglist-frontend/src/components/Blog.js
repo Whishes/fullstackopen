@@ -3,6 +3,20 @@ import { useDispatch } from "react-redux"
 import { addLike, deleteBlog, addComment } from "../reducers/blogReducer"
 import { errorMessage, successMessage } from "../reducers/notificationReducer"
 import { useHistory } from "react-router-dom"
+import {
+  Button,
+  Card,
+  CardContent,
+  Link,
+  Typography,
+  TextField,
+  List,
+  ListItem,
+  Container,
+  ListItemIcon,
+  ListItemText,
+} from "@material-ui/core/"
+import ChevronRightIcon from "@material-ui/icons/ChevronRight"
 
 const Blog = ({ blog }) => {
   const dispatch = useDispatch()
@@ -29,25 +43,15 @@ const Blog = ({ blog }) => {
     }
   }
 
-  const blogStyle = {
-    paddingTop: 5,
-    paddingBttom: 5,
-    paddingLeft: 5,
-    border: "solid",
-    borderWidth: 1,
-    marginBottom: 5,
-    marginTop: 5,
-  }
-
   const addCommentForm = (event) => {
     //console.log(event)
     const comment = event.target.comment.value
     event.preventDefault()
     try {
       dispatch(addComment(comment, blog.id))
-      history.push(`/blogs/${blog.id}`)
       dispatch(successMessage(`${comment} added!`))
-      console.log(`Comment: ${comment}`)
+      history.push(`/blogs/${blog.id}`)
+      //console.log(`Comment: ${comment}`)
     } catch (error) {
       dispatch(errorMessage("Comment could not be added"))
     }
@@ -58,37 +62,53 @@ const Blog = ({ blog }) => {
   }
 
   return (
-    <div style={blogStyle}>
-      <h1>
-        <span className="title">{blog.title}</span> by
-        <span className="author"> {blog.author}</span>
-      </h1>
-      <a href={blog.url} className="url">
-        {blog.url}
-      </a>
-      <p className="likes">
-        <span>Likes:</span> <span className="blogLikes">{blog.likes}</span>
-        <button onClick={addLikeBlog} className="likeButton">
-          Like
-        </button>
-      </p>
-      <p className="username">Added by User: {blog.user.name}</p>
-      <button id="deleteButton" onClick={handleRemove}>
-        Delete
-      </button>
+    <>
+      <Card variant="outlined">
+        <CardContent>
+          <Typography variant="h4">
+            {blog.title} by {blog.author}
+          </Typography>
+          <Link
+            component="button"
+            variant="body1"
+            href={blog.url}
+            className="url"
+          >
+            Blog Url
+          </Link>
+          <Typography className="likes">
+            Likes: {blog.likes}
+            <Button onClick={addLikeBlog} className="likeButton">
+              Like
+            </Button>
+          </Typography>
+          <Typography className="username" variant="body2" component="p">
+            Added by User: {blog.user.name}
+            <Button id="deleteButton" onClick={handleRemove}>
+              Delete
+            </Button>
+          </Typography>
+        </CardContent>
+      </Card>
+      <Container>
+        <Typography variant="h6">Comments</Typography>
+        <form onSubmit={(event) => addCommentForm(event)}>
+          <TextField label="Comment" type="comment" name="comment"></TextField>
+          <Button type="submit">Add Comment</Button>
+        </form>
 
-      <h3>Comments</h3>
-      <form onSubmit={(event) => addCommentForm(event)}>
-        <input type="comment" name="comment"></input>
-        <button type="submit">Add Comment</button>
-      </form>
-
-      <ul>
-        {blog.comments.map((comment) => (
-          <li key={comment}>{comment}</li>
-        ))}
-      </ul>
-    </div>
+        <List variant="inherit">
+          {blog.comments.map((comment) => (
+            <ListItem key={comment}>
+              <ListItemIcon>
+                <ChevronRightIcon />
+              </ListItemIcon>
+              <ListItemText>{comment}</ListItemText>
+            </ListItem>
+          ))}
+        </List>
+      </Container>
+    </>
   )
 }
 

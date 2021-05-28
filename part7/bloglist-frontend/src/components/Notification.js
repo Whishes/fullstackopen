@@ -1,3 +1,4 @@
+import { Container, Typography } from "@material-ui/core"
 import React from "react"
 
 const Notification = ({ message }) => {
@@ -6,7 +7,11 @@ const Notification = ({ message }) => {
     return null
   }
 
-  return <div className={message.state}>{message.text}</div>
+  return (
+    <Container>
+      <Typography className={message.state}>{message.text}</Typography>
+    </Container>
+  )
 }
 
 export default Notification

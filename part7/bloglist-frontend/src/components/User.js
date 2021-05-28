@@ -1,4 +1,5 @@
 import React from "react"
+import { Container, List, ListItem, Typography } from "@material-ui/core"
 
 const User = ({ userBlogs }) => {
   if (!userBlogs[0]) {
@@ -6,15 +7,15 @@ const User = ({ userBlogs }) => {
   }
 
   return (
-    <div>
-      <h1>{userBlogs[0].user.name}</h1>
-      <h4>Added Blogs:</h4>
-      <ul>
+    <Container>
+      <Typography variant="h4">{userBlogs[0].user.name}</Typography>
+      <Typography variant="h6">Added Blogs:</Typography>
+      <List>
         {userBlogs.map((userBlog) => (
-          <li key={userBlog.id}>{userBlog.title}</li>
+          <ListItem key={userBlog.id}>{userBlog.title}</ListItem>
         ))}
-      </ul>
-    </div>
+      </List>
+    </Container>
   )
 }
 

@@ -1,5 +1,7 @@
 import React, { useState, useImperativeHandle } from "react"
 import PropTypes from "prop-types"
+import { Button, IconButton } from "@material-ui/core"
+import CloseIcon from "@material-ui/icons/Close"
 
 const Togglable = React.forwardRef((props, ref) => {
   const [visible, setVisible] = useState(false)
@@ -19,15 +21,24 @@ const Togglable = React.forwardRef((props, ref) => {
   Togglable.displayName = "Toggleable"
 
   return (
-    <div>
+    <>
       <div style={hideWhenVisible}>
-        <button onClick={toggleVisibility}>{props.buttonLabel}</button>
+        <Button
+          color="primary"
+          variant="outlined"
+          disableElevation
+          onClick={toggleVisibility}
+        >
+          {props.buttonLabel}
+        </Button>
       </div>
       <div style={showWhenVisible}>
         {props.children}
-        <button onClick={toggleVisibility}>cancel</button>
+        <IconButton aria-label="close form" onClick={toggleVisibility}>
+          <CloseIcon />
+        </IconButton>
       </div>
-    </div>
+    </>
   )
 })
 

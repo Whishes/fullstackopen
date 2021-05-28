@@ -21,6 +21,7 @@ import {
   useHistory,
 } from "react-router-dom"
 import NavBar from "./components/NavBar"
+import { Container, List, ListItem, Typography } from "@material-ui/core"
 
 const App = () => {
   const blogFormRef = useRef()
@@ -103,21 +104,28 @@ const App = () => {
               <LoginForm />
             </div>
           ) : (
-            <div>
-              <h2>Create New Blog</h2>
+            <Container>
+              <Typography variant="h5">Create New Blog</Typography>
               <Togglable buttonLabel="new blog" ref={blogFormRef}>
                 <BlogForm addBlogForm={addBlogForm} />
               </Togglable>
 
-              <h2>Blog List</h2>
-              {blogs.sort((a, b) => b.likes - a.likes) &&
-                blogs.map((blog) => (
-                  //<Blog key={blog.id} blog={blog} removeBlog={removeBlog} />
-                  <div key={blog.id}>
-                    <Link to={`/blogs/${blog.id}`}>{blog.title}</Link>
-                  </div>
-                ))}
-            </div>
+              <Typography variant="h5">Blog List</Typography>
+              <List>
+                {blogs.sort((a, b) => b.likes - a.likes) &&
+                  blogs.map((blog) => (
+                    //<Blog key={blog.id} blog={blog} removeBlog={removeBlog} />
+                    <ListItem
+                      button
+                      key={blog.id}
+                      component={Link}
+                      to={`/blogs/${blog.id}`}
+                    >
+                      {blog.title}
+                    </ListItem>
+                  ))}
+              </List>
+            </Container>
           )}
         </Route>
       </Switch>

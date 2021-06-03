@@ -1,5 +1,6 @@
 const { ApolloServer, gql, UserInputError, AuthenticationError } = require('apollo-server')
 const { v1: uuid } = require('uuid')
+require('dotenv').config()
 
 const mongoose = require('mongoose')
 const Book = require('./models/book')
@@ -9,7 +10,6 @@ const User = require('./models/user')
 const jwt = require('jsonwebtoken')
 
 console.log('connecting to', process.env.MONGODB_URI)
-
 mongoose.connect(process.env.MONGODB_URI,
   { useNewUrlParser: true, useUnifiedTopology: true, useFindAndModify: false, useCreateIndex: true })
   .then(() => {
@@ -23,7 +23,7 @@ mongoose.connect(process.env.MONGODB_URI,
 const typeDefs = gql`
     type User {
       username: String!
-      favoriteGenre: String!
+      favouriteGenre: String!
       id: ID!
     }
 
@@ -32,27 +32,27 @@ const typeDefs = gql`
     }
 
     type Author {
-        name: String!
-        id: ID!
-        born: Int
-        bookCount: Int!
+      name: String!
+      id: ID!
+      born: Int
+      bookCount: Int!
     }
 
     type Book {
-        title: String!
-        author: Author!
-        published: Int!
-        genres: [String!]!
-        id: ID!
+      title: String!
+      author: Author!
+      published: Int!
+      genres: [String!]!
+      id: ID!
     }
 
     type Query {
-      authorCount: Int!
       bookCount: Int!
+      authorCount: Int!
       allBooks(author: String, genre: String): [Book!]!
       allAuthors: [Author!]!
-      me: User
-  }
+      user: User
+    }
 
     type Mutation {
         addBook (
@@ -67,13 +67,12 @@ const typeDefs = gql`
         ): Author
         createUser(
             username: String!
-            favoriteGenre: String!
+            favouriteGenre: String!
         ): User
         login(
             username: String!
             password: String!
         ): Token
-      }
     }
 `
 
@@ -82,44 +81,33 @@ const resolvers = {
       authorCount: () => Author.collection.countDocuments(),
       bookCount: () => Book.collection.countDocuments(),
     allBooks: async (root, args) => {
+      if (!args.author && !args.genre) {
+        return Book.find({}).populate("author")
+      }
+      let books = await Book.find({}).populate("author")
         // if only Author
       if (args.author && !args.genre) {
-            const books =  args.author 
-            ? books.filter(book => book.author === args.author)
-            : books
-        return filter
+          books = books.filter(book => book.author === args.author)
       }
       // if only genre
-        if (args.genre && !args.author) {
-            const books = args.genre
-            ? books.filter(book => book.genres.includes(args.genre))
-            : books
-
-            return books
+      if (args.genre && !args.author) {
+        books = books.filter(book => book.genres.findIndex((genre) => genre == args.genre) !== -1
+        )
       }
-      // if both
-        if (args.genre && args.author) {
-            const books = books
-            ? books.filter(book => book.author === args. author && book.genres.includes(args.genre))
-            : books
-
-            return books
-        }
-
-        return books   
-      },
+      return books
+    },
+    
       allAuthors: async (root, args) => {
           return await Author.find({})
     },
-      me: (root, args, context) => {
+      user: (root, args, context) => {
       return context.currentUser
     }
   },
   Author: {
     bookCount: async (root) => {
-      const books = await Book.find({})
-      const booksCounted = books.filter(book => book.author === root.name).length
-      return booksCounted
+      const BookCount = await Book.find({ author: root.id }).countDocuments()
+      return BookCount
     }
   },
   Mutation: {
@@ -146,9 +134,10 @@ const resolvers = {
       }
       // add new book
       const newAuthor = await Author.findOne({name: args.author})
-      const book = new Book({
+      let book = new Book({
         ...args,
-        author: newAuthor 
+        author: newAuthor,
+        id: uuid()
       })
       
       // saves new book to database or throws error if not possible
@@ -159,6 +148,7 @@ const resolvers = {
           invalidArgs: args
         })
       }
+      return book
     },
     
     editAuthor: async (root, args, { currentUser }) => {
@@ -166,17 +156,10 @@ const resolvers = {
         throw new AuthenticationError("not authenticated")
       }  
 
-        if (!(authors.find(a => a.name === args.name))) {
-          throw new UserInputError("Needs a name", {
-            invalidArgs: args
-          })
-      }
-      
-      const author = await Author.findOne({ name: args.name })
+      const author = await Author.findOneAndUpdate({ name: args.name }, {born: args.setBornTo})
       if (!author) {
         return null
       }
-      author.born = args.setBornTo
       
       try {
         await author.save()
@@ -198,7 +181,7 @@ const resolvers = {
     login: async (root, args) => {
       const user = await User.findOne({ username: args.username })
 
-      if ( !user || args.password !== 'secret' ) {
+      if ( !user || args.password !== 'test' ) {
         throw new UserInputError("wrong credentials")
       }
 

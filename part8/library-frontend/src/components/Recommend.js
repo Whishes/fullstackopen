@@ -10,13 +10,6 @@ const Recommend = ({show}) => {
     const user = useQuery(USER)
     const [me, setMe] = useState(null)
     const [favouriteGenre, setFavouriteGenre] = useState([])
-    
-    // useQuery(USER, {
-    //     onCompleted: ({ user }) => {
-    //         setMe(user)
-    //         getBooks({variables: {genre: user.favouriteGenre}})
-    //     }
-    // })
 
     useEffect(() => {
         if (user.data) {

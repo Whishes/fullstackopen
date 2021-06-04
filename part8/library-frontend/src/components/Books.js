@@ -2,6 +2,7 @@ import React, { useEffect, useState } from 'react'
 
 const Books = (props) => {
   const books = props.books
+  const setError = props.setError
   //const result = useQuery(ALL_BOOKS)
   const [book, setBook] = useState([])
   const [filteredBook, setFilteredBook] = useState([])
@@ -22,8 +23,10 @@ const Books = (props) => {
       })
       setGenres(genres)
       setSelectedGenre("all genres")
+    } else {
+      setError("books not found")
     }
-  }, [books])
+  }, [books, setError])
 
   useEffect(() => {
     if (selectedGenre === "all genres") {

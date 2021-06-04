@@ -4,7 +4,7 @@ import { ALL_AUTHORS, EDIT_AUTHOR } from "../queries"
 import Select from 'react-select'
 
 
-const Authors = (props) => {
+const Authors = ({show, setError}) => {
   const result = useQuery(ALL_AUTHORS)
   const [editAuthor] = useMutation(EDIT_AUTHOR, {
     refetchQueries: [{query: ALL_AUTHORS}]
@@ -14,20 +14,22 @@ const Authors = (props) => {
 
   const submit = async (event) => {
     event.preventDefault()
-
-    editAuthor({
-      variables: {name, setBornTo: parseInt(born)}
-    })
-
-    setName("")
-    setBorn("")
+    try {
+      await editAuthor({
+        variables: {name, setBornTo: parseInt(born)}
+      })
+      setName("")
+      setBorn("")
+    } catch (error) {
+      setError("Author cannot be edited")
+    }
   }
 
 if (result.loading)  {
     return <div>loading...</div>
   }
 
-  if (!props.show) {
+  if (!show) {
     return null
   }
 

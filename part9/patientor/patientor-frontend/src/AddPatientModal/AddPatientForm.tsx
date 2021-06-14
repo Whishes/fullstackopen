@@ -3,8 +3,7 @@ import { Grid, Button } from "semantic-ui-react";
 import { Field, Formik, Form } from "formik";
 
 import { TextField, SelectField, GenderOption } from "./FormField";
-import { Gender, Patient } from "../types";
-
+import { Gender, Patient, HealthCheckEntry} from "../types";
 /*
  * use type Patient, but omit id and entries,
  * because those are irrelevant for new patient object.
@@ -21,6 +20,12 @@ const genderOptions: GenderOption[] = [
   { value: Gender.Female, label: "Female" },
   { value: Gender.Other, label: "Other" }
 ];
+
+export interface EntryProps {
+  onSubmit: (values: HealthCheckEntry) => void;
+  onCancel: () => void;
+  patiendId: string;
+}
 
 export const AddPatientForm = ({ onSubmit, onCancel } : Props ) => {
   return (

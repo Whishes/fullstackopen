@@ -9,6 +9,7 @@ interface Props {
   error?: string;
 }
 
+
 const AddPatientModal = ({ modalOpen, onClose, onSubmit, error }: Props) => (
   <Modal open={modalOpen} onClose={onClose} centered={false} closeIcon>
     <Modal.Header>Add a new patient</Modal.Header>
